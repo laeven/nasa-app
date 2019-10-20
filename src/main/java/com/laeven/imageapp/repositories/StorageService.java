@@ -1,4 +1,4 @@
-package com.laeven.imageapp.services;
+package com.laeven.imageapp.repositories;
 
 // Description of StorageService than can
 // use any type of backend to abstract away

@@ -1,9 +1,11 @@
-package com.laeven.imageapp.services;
+package com.laeven.imageapp.repositories.filestorage;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import com.laeven.imageapp.repositories.StorageService;
 
 public class ImageFileStorage implements StorageService {
   // 

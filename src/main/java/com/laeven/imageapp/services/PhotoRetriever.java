@@ -11,6 +11,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,22 +24,25 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.laeven.imageapp.repositories.StorageService;
+import com.laeven.imageapp.repositories.filestorage.ImageFileStorage;
 import com.laeven.imageapp.utils.DateParser;
 
 import java.io.FileReader;
 
+@Service
 public class PhotoRetriever {
-
+  
   String apiToken;
   String photoURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=%s&api_key=%s";
   StorageService storage;
-
+  
   // PhotoRetrieve constructor intializes the API Token and 
   // the storage service. Currently only uses ImageFileStorage
   // but capable of expanding.
-  public PhotoRetriever(String filename) throws FileNotFoundException, IOException, ParseException{
+  public PhotoRetriever() throws FileNotFoundException, IOException, ParseException{
     JSONParser parser = new JSONParser();
-    JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(filename));
+    JSONObject jsonObj = (JSONObject) parser.parse(new FileReader("config.json"));
     apiToken = (String) jsonObj.get("apiToken");
     String storageDir = (String) jsonObj.get("storageDir");
     storage = new ImageFileStorage(storageDir);
@@ -45,7 +50,7 @@ public class PhotoRetriever {
 
   // Function detects if image is cached before attempt
   // to retrieve directly from Nasa API
-  public byte[] getImage(String dateString){
+  public byte[] getImage(String dateString) throws java.text.ParseException{
     // Prepare date to usable format
     Date parsedDate = new DateParser().parseDate(dateString);
     String parsedDateString = new SimpleDateFormat("yyyy-MM-dd").format(parsedDate);
