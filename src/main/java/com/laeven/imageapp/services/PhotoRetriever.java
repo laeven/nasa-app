@@ -15,7 +15,6 @@ import org.apache.http.util.EntityUtils;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -31,24 +30,36 @@ public class PhotoRetriever {
 
   String apiToken;
   String photoURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=%s&api_key=%s";
+  StorageService storage;
 
+  // PhotoRetrieve constructor intializes the API Token and 
+  // the storage service. Currently only uses ImageFileStorage
+  // but capable of expanding.
   public PhotoRetriever(String filename) throws FileNotFoundException, IOException, ParseException{
     JSONParser parser = new JSONParser();
     JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(filename));
     apiToken = (String) jsonObj.get("apiToken");
+    String storageDir = (String) jsonObj.get("storageDir");
+    storage = new ImageFileStorage(storageDir);
   }
 
   // Function detects if image is cached before attempt
   // to retrieve directly from Nasa API
-  public String getImage(String dateString){
+  public byte[] getImage(String dateString){
+    // Prepare date to usable format
     Date parsedDate = new DateParser().parseDate(dateString);
-
-    String imageURL = requestPhotoURL(parsedDate);
-    if (imageURL == null || imageURL.equals("")){
-      return "ERROR: No image found.";
-    }
-    retrieveImage(imageURL, parsedDate);
-    return "";
+    String parsedDateString = new SimpleDateFormat("yyyy-MM-dd").format(parsedDate);
+    String cachedImageName = String.format("image.%s.jpg", parsedDateString);
+    
+    // Check to see if image is already cached
+    if (!storage.objectExists(cachedImageName)){
+      String imageURL = requestPhotoURL(parsedDate);
+      if (imageURL == null || imageURL.equals("")){
+        return new byte[0];
+      }
+      retrieveImage(imageURL, parsedDate);
+    };
+    return storage.retrieve(cachedImageName);
   }
 
   private String requestPhotoURL(Date date){
@@ -81,14 +92,16 @@ public class PhotoRetriever {
     return "";
   }
 
-  private void retrieveImage(String imageURL, Date date){
-    String outputFile = String.format("/tmp/image.%s.jpg", new SimpleDateFormat("yyyy-MM-dd").format(date));
+  // retrieveImage takes image URL and attempts to store 
+  // utilizing the storage service. 
+  private boolean retrieveImage(String imageURL, Date date){
+    String imageID = String.format("image.%s.jpg", new SimpleDateFormat("yyyy-MM-dd").format(date));
     URL url;
     try{
       url = new URL(imageURL);
     }catch(MalformedURLException e){
       e.printStackTrace();
-      return;
+      return false;
     }
 
     try {
@@ -103,12 +116,12 @@ public class PhotoRetriever {
       out.close();
       in.close();
       byte[] response = out.toByteArray();
+
+      return storage.store(imageID, response);
       
-      FileOutputStream fos = new FileOutputStream(outputFile);
-      fos.write(response);
-      fos.close();
     } catch(IOException e){
       e.printStackTrace();
+      return false;
     }
   }
 }
