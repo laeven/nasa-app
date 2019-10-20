@@ -1,9 +1,14 @@
+VERSION:=1.0-SNAPSHOT
+
+run-local:
+	mvn spring-boot:run
 
 build:
-	mvn clean compile assembly:single 
+	mvn clean install spring-boot:repackage
 
 run:
-	java -jar target/nasa-app-1.0-SNAPSHOT-jar-with-dependencies.jar
+	java -jar target/nasa-app-$(VERSION).jar
 
-docker:
-	docker build -t nasa-app:latest .
+docker: build
+	docker build -t nasa-app:latest --build-arg "VERSION=$(VERSION)" .
+	docker run -v $(pwd)/config.json:/app/config.json -it nasa-app:latest
