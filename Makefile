@@ -1,4 +1,5 @@
 VERSION:=1.0-SNAPSHOT
+.PHONY: build run run-local docker
 
 run-local:
 	mvn spring-boot:run
