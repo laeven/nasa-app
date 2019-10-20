@@ -1,4 +1,5 @@
 VERSION:=1.0-SNAPSHOT
+
 .PHONY: build run run-local docker
 
 run-local:
@@ -12,4 +13,7 @@ run:
 
 docker: build
 	docker build -t nasa-app:latest --build-arg "VERSION=$(VERSION)" .
-	docker run -v $(pwd)/config.json:/app/config.json -it nasa-app:latest
+	docker run -v $(CURDIR)/dates.txt:/app/dates.txt \
+		-v $(CURDIR)/config.json:/app/config.json \
+		-p 8080:8080 -it \
+		nasa-app:latest
