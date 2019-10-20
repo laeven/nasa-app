@@ -1,0 +1,18 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - App",
+      "request": "launch",
+      "mainClass": "App",
+      "projectName": "nasa-app"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - App",
+      "request": "launch",
+      "mainClass": "com.laeven.imageapp.App",
+      "projectName": "nasa-app"
+    }
+  ]
+}
