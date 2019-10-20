@@ -1,4 +1,4 @@
 {
-  "apiToken": "Khc45aKbrts34ASlio9Un2UaGco29YtJXBBMluPZ",
+  "apiToken": "$API_TOKEN",
   "storageDir": "/tmp"
 }
